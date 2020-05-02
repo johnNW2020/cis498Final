@@ -3,9 +3,12 @@ from bson.objectid import ObjectId
 
 class Menu:
 
+    def __init__(self):
+        self.mc = MongoClientHelper()
+        self.db = self.mc.db['menu']
+
     def pizza(self):
-        mc = MongoClientHelper()
-        menuItems = mc.db['menu']
+        menuItems = self.db
         myMenuList = []
         for m in menuItems.find():
             em = Menu()
@@ -18,6 +21,12 @@ class Menu:
         return myMenuList
 
     def findById(self, id):
-        mc = MongoClientHelper()
-        menuItems = mc.db['menu']
-        return menuItems.find_one({'_id': ObjectId(id)})
+        return self.db.find_one({'_id': ObjectId(id)})
+
+    # Functional Requirement 2
+    # def editMenuItem()
+
+    # Functional Requirement 3
+    # def editMenuPrice()
+
+

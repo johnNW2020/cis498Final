@@ -6,16 +6,38 @@ class Customers:
     # Established mongo connection and customers collection
     def __init__(self):
         self.mc = MongoClientHelper()
-        self.customersdb = self.mc.db['customers']
+        self.customers_db = self.mc.db['customers']
 
     def createCustomer(self, form):
         name = form.cleaned_data.get('name')
-        email = form.cleaned_data.get('email')
+        email = form.cleaned_data.get('email').lower()
         address = form.cleaned_data.get('address')
-        phonenumber = form.cleaned_data.get('phonenumber')
+        phone_number = form.cleaned_data.get('phonenumber')
         customer = {"name": name,
                     "email": email,
                     "address": address,
-                    "phonenumber": phonenumber}
+                    "phonenumber": phone_number}
 
-        self.customersdb.insert_one(customer)
+        self.customers_db.insert_one(customer)
+
+    # def generateCustomerReport(dateRange)
+
+    # def getCustomerHistory()
+
+    # This method will update customer the customer order list for maintaining order history
+    def updateCustomerOrders(self, email, uuid):
+        customer_query = {"email": email.lower()}
+        customer = self.customers_db.find_one(customer_query)
+
+        # Use some try/catch logic to check for existing orders, if it breaks its the customers first order
+        try:
+            customer['orders'].append(uuid)
+            self.customers_db.update_one(customer_query, {"$set": {"orders": customer['orders']}})
+        except KeyError:
+            uuidList = [uuid]
+            self.customers_db.update_one(customer_query, {"$set": {"orders": uuidList}})
+
+        # If customer object returns with empty orders, create new order object
+        # else append uuid to orders
+
+

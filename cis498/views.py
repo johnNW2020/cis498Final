@@ -1,5 +1,6 @@
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, render_to_response
 
 from cis498.forms import SignUpForm
@@ -18,9 +19,14 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-@login_required()
+@staff_member_required()
 def staffhome(request):
-    return render(request, 'staffhome.html')
+    order = Orders()
+    orders = order.getCurrentOrders()
+    context = {
+        'orders': orders
+    }
+    return render(request, 'staffhome.html', context)
 
 @login_required()
 def checkout(request):
@@ -46,8 +52,15 @@ def addtocart(request, **kwargs):
     test = kwargs.get('item_id', "")
     item = menu.findById(id=kwargs.get('item_id', ""))
     order = Orders()
-    order.generateOrder(user, item)
+    order.generateOrder(user, item, '')
     return redirect('home')
+
+@staff_member_required()
+def updateOrders(request, **kwargs):
+    order = kwargs.get('item_id')
+    orders = Orders()
+    orders.updateOrder(order)
+    return redirect('staffhome')
 
 def signup(request):
     if request.method == 'POST':
