@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  <div style="text-align:center">Hi {{ user.username }}! Welcome to Willy's Pizza Online Ordering Service</div>
+  <div class="row">
+  {% for menuItem in menu %}
+        <div class="col-sm-3">
+            <p>{{ menuItem.type }}</p>
+            <p>{{ menuItem.name }}</p>
+            <p>{{ menuItem.description }}</p>
+            <p>Price: ${{ menuItem.price }}</p>
+            <a href="{% url 'addtocart' menuItem.id %}" class="btn btn-warning">Add to Cart</a>
+        </div>
+    {% endfor %}
+  </div>
+  <p><a href="{% url 'logout' %}">logout</a></p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">login</a>
+{% endif %}
+{% endblock %}
