@@ -35,4 +35,5 @@ urlpatterns = [
     url(r'^ordertracker/$', cisviews.ordertracker, name='ordertracker'),
     url(r'^driverhome/$', cisviews.driverhome, name='driverhome'),
     url(r'^addtocart/(?P<item_id>[-\w]+)$', cisviews.addtocart, name='addtocart'),
+    url(r'^editMenuItem/$', cisviews.editMenuItem, name='editMenuItem'),
 ]

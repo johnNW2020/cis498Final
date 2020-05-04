@@ -2,8 +2,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect, render_to_response
+from django.views.generic import ListView, CreateView
 
-from cis498.forms import SignUpForm
+from cis498.forms import SignUpForm, MenuForm
+from cis498.models import MenuModel
 from cis498.mongodb.customers import Customers
 from cis498.mongodb.menu import Menu
 
@@ -49,7 +51,6 @@ def driverhome(request):
 def addtocart(request, **kwargs):
     user = request.user
     menu = Menu()
-    test = kwargs.get('item_id', "")
     item = menu.findById(id=kwargs.get('item_id', ""))
     order = Orders()
     order.generateOrder(user, item, '')
@@ -95,4 +96,44 @@ def create_account(form):
     customer = Customers()
     customer.createCustomer(form)
 
+def create_menu_item(form):
+    menu = Menu()
+    menu.createNewItem(form)
+
+def update_menu_item(form):
+    menu = Menu()
+    menu.updateMenuItem(form)
+
+def editMenuItem(request):
+    m = Menu()
+    menu = m.menuNames()
+    context = {
+        'results': menu
+    }
+    if request.POST:
+
+        form = MenuForm(request.POST)
+        id = form['item_id']
+        if form.is_valid():
+            if id.data == 'EMPTY':
+                create_menu_item(form)
+            else:
+                update_menu_item(form)
+            return redirect('staffhome')
+    elif request.GET:
+        if request.GET['menuitems'] == 'Add Item':
+            form = MenuForm(initial={'item_id':'EMPTY'})
+        else:
+            form = findAndEditMenuItem(request)
+        context['form'] = form
+        return render(request, 'staffeditmenu.html', context)
+
+    return render(request, 'staffeditmenu.html', context)
+
+def findAndEditMenuItem(request):
+    m = Menu()
+    pizza = m.findByName(request.GET['menuitems'])
+    form = MenuForm(initial={'name': pizza.name, 'type': pizza.type, 'price': pizza.price,
+                                     'description': pizza.description, 'item_id':pizza.id})
+    return form
 
