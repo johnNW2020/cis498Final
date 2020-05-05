@@ -5,6 +5,14 @@
 {% block content %}
 {% if user.is_authenticated %}
   <div style="text-align:center">Hi {{ user.username }}! Track the Status of your Order</div>
+        <div class="col-sm-3">
+            <p>{{ order.items }}</p>
+            <p>{{ order.comments }}</p>
+            <p>{{ order.email }}</p>
+            <p>Order Status: {{ order.status }}</p>
+        </div>
+  <br>
+  <hr>
   <p><a href="{% url 'logout' %}">logout</a></p>
 {% else %}
   <p>You are not logged in</p>

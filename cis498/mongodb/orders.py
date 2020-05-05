@@ -55,6 +55,34 @@ class Orders:
             orderList.append(Dict)
         return orderList
 
+        # Functional Requirement 5
+    def getCurrentUserOrder(self, email, customer):
+        #First get the customer order history
+        final_result = None
+        customerOrders = customer.orders
+        for order in customerOrders:
+            status = self.orders_db.find_one({'_id': ObjectId(order)})
+            if status['orderStatus'] != 'Order Complete':
+                final_result = status
+
+        if final_result == None:
+            order_list = {
+                'email': '',
+                'id': '',
+                'comments': '',
+                'items': '',
+                'status': 'No Pending Orders'}
+        else:
+            order_list ={
+                    'email': final_result['email'],
+                    'id': final_result['_id'],
+                    'comments': final_result['comments'],
+                    'items': final_result['items']['Name'],
+                    'status': final_result['orderStatus']
+                }
+
+        return order_list
+
 
     def updateOrder(self, order):
 

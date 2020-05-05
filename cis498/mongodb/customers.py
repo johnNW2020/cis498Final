@@ -40,4 +40,16 @@ class Customers:
         # If customer object returns with empty orders, create new order object
         # else append uuid to orders
 
+    def findCustomerByEmail(self, email):
+        customer_query = {"email": email.lower()}
+        result = self.customers_db.find_one(customer_query)
+        return Customer(result['name'], result['email'], result['address'], result['phonenumber'], result['orders'])
 
+class Customer:
+
+    def __init__(self, name, email, address, phone_number, orders):
+        self.name = name
+        self.email = email
+        self.address = address
+        self. phone_number = phone_number
+        self.orders = orders

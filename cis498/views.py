@@ -36,8 +36,14 @@ def checkout(request):
 
 @login_required()
 def ordertracker(request):
-    print(request.method)
-    return render(request, 'ordertracker.html')
+    cust = Customers()
+    customer = cust.findCustomerByEmail(request.user.email)
+    order = Orders()
+    orders = order.getCurrentUserOrder(request.user.email, customer)
+    context = {
+        'order': orders
+    }
+    return render(request, 'ordertracker.html', context)
 
 @login_required()
 def checkout(request):
