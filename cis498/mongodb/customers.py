@@ -37,8 +37,6 @@ class Customers:
             uuidList = [uuid]
             self.customers_db.update_one(customer_query, {"$set": {"orders": uuidList}})
 
-        # If customer object returns with empty orders, create new order object
-        # else append uuid to orders
 
     def findCustomerByEmail(self, email):
         customer_query = {"email": email.lower()}
@@ -51,5 +49,5 @@ class Customer:
         self.name = name
         self.email = email
         self.address = address
-        self. phone_number = phone_number
+        self.phone_number = phone_number
         self.orders = orders

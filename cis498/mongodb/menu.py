@@ -23,7 +23,8 @@ class Menu:
         return myMenuList
 
     def findById(self, id):
-        return self.db.find_one({'_id': ObjectId(id)})
+        item = self.db.find_one({'_id': ObjectId(id)})
+        return MenuItem(item['Name'], item['Price'], item['Description'], item['Type'], item['_id'])
 
     def findByName(self, name):
         item = self.db.find_one({'Name': name})
@@ -56,12 +57,6 @@ class Menu:
         self.db.insert_one(menuItem)
 
 
-
-    # Functional Requirement 2
-    # def editMenuItem()
-
-    # Functional Requirement 3
-    # def editMenuPrice()
 
 class MenuItem:
 

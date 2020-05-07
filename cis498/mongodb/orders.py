@@ -3,7 +3,20 @@ from cis498.mongodb.mongoclient import MongoClientHelper
 from bson.objectid import ObjectId
 import datetime
 
-import uuid
+
+deliveryDict = {
+    "1": "Pickup - No Delivery",
+    "2": "Delivery - In House",
+    "3": "Delivery - 3rd Party"
+}
+
+tipDict = {
+    "1": "15%",
+    "2": "18%",
+    "3": "20%",
+    "4": "Custom Amount",
+    "5": "None"
+}
 
 class Orders:
     ORDER_STATUS = 'orderStatus'
@@ -20,16 +33,18 @@ class Orders:
         self.orders_db = self.mc.db['orders']
 
     # This will generate an order document and also update the customer record
-    def generateOrder(self, customer, order, order_comments):
+    def generateOrder(self, customer, order, form):
         #Generate a UUID https://en.wikipedia.org/wiki/Universally_unique_identifier
         datetime_time = datetime.datetime.now()
+        # TODO :update driver to be an option
         order = {
             'email': customer.email,
             'items': order,
-            'comments': order_comments,
+            'comments': form['comments'].data,
             'orderStatus': 'Received',
-            'orderType': 'Delivery',
-            'dateTime': datetime_time
+            'orderType': deliveryDict.get(form['delivery_method'].data),
+            'dateTime': datetime_time,
+            'driver': 'jackiestewart@willyspizza.com'
         }
         generatedOrder = self.orders_db.insert_one(order)
         self.updateCustomerRecord(customer.email, generatedOrder.inserted_id)
@@ -49,7 +64,7 @@ class Orders:
                 'email': order['email'],
                 'id': order['_id'],
                 'comments': order['comments'],
-                'items': order['items']['Name'],
+                'items': order['items'],
                 'status': order['orderStatus']
             })
             orderList.append(Dict)
@@ -77,11 +92,26 @@ class Orders:
                     'email': final_result['email'],
                     'id': final_result['_id'],
                     'comments': final_result['comments'],
-                    'items': final_result['items']['Name'],
+                    'items': final_result['items'],
                     'status': final_result['orderStatus']
                 }
 
         return order_list
+
+    def get_driver_orders(self, user):
+        orderCollection = self.orders_db.find({'orderStatus': self.IN_TRANSIT})
+        orderList = []
+        for order in orderCollection:
+            if order['driver'] == user:
+                Dict = dict({
+                    'email': order['email'],
+                    'id': order['_id'],
+                    'comments': order['comments'],
+                    'items': order['items'],
+                    'status': order['orderStatus']
+                })
+                orderList.append(Dict)
+        return orderList
 
 
     def updateOrder(self, order):
@@ -92,15 +122,14 @@ class Orders:
             orderToUpdate[self.ORDER_STATUS] = self.IN_PROGRESS
         elif orderToUpdate[self.ORDER_STATUS] == self.IN_PROGRESS:
             orderToUpdate[self.ORDER_STATUS] = self.ORDER_READY
-        elif orderToUpdate[self.ORDER_STATUS] == self.ORDER_READY and orderToUpdate[self.ORDER_TYPE] == 'Delivery':
+        elif orderToUpdate[self.ORDER_STATUS] == self.ORDER_READY and 'Pickup' not in orderToUpdate[self.ORDER_TYPE]:
             orderToUpdate[self.ORDER_STATUS] = self.IN_TRANSIT
-        elif orderToUpdate[self.ORDER_STATUS] == self.ORDER_READY and orderToUpdate[self.ORDER_TYPE] == 'Pickup':
+        elif orderToUpdate[self.ORDER_STATUS] == self.ORDER_READY and 'Pickup' in orderToUpdate[self.ORDER_TYPE]:
             orderToUpdate[self.ORDER_STATUS] = self.READY_FOR_PICKUP
         elif orderToUpdate[self.ORDER_STATUS] == self.IN_TRANSIT or orderToUpdate[self.ORDER_STATUS] == self.READY_FOR_PICKUP:
             orderToUpdate[self.ORDER_STATUS] = self.ORDER_COMPLETE
 
         self.orders_db.update_one(oidQuery, {"$set": {self.ORDER_STATUS: orderToUpdate[self.ORDER_STATUS]}})
-
 
 
 

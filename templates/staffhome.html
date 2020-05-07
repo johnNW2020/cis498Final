@@ -8,9 +8,9 @@
   <div class="row">
   {% for order in orders %}
         <div class="col-sm-3">
-            <p>{{ order.items }}</p>
-            <p>{{ order.comments }}</p>
-            <p>{{ order.email }}</p>
+            <p>Items: {{ order.items }}</p>
+            <p>Comments: {{ order.comments }}</p>
+            <p>Customer Email: {{ order.email }}</p>
             <p>Order Status: {{ order.status }}</p>
             <a href="{% url 'updateOrders' order.id %}" class="btn btn-warning">Update Order</a>
         </div>

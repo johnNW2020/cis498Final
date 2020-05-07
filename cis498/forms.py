@@ -16,6 +16,12 @@ class SignUpForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2', 'name', 'address')
 
+    def clean(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError("Email Exists")
+        return self.cleaned_data
+
 
 class MenuForm(forms.Form):
     name = forms.CharField(max_length=50)
@@ -41,6 +47,44 @@ class MenuForm(forms.Form):
     def is_valid(self):
         return True
 
+DELIVERY_OPTIONS = (
+    ("1", "Pickup - No Delivery"),
+    ("2", "Delivery - In House"),
+    ("3", "Delivery - 3rd Party"),
+)
+
+TIP_OPTIONS = (
+    ("1", "15%"),
+    ("2", "18%"),
+    ("3", "20%"),
+    ("4", "Custom Amount"),
+    ("5", "None")
+)
+class CheckoutForm(forms.Form):
+    name = forms.CharField(max_length=50, required=True)
+    address = forms.CharField(max_length=50, required=True)
+    comments = forms.CharField(max_length=150, required=False)
+    delivery_method = forms.ChoiceField(choices=DELIVERY_OPTIONS, required=True)
+    phone_number = forms.CharField(max_length=11, min_length=10, required=True)
+    tip = forms.ChoiceField(choices=TIP_OPTIONS, required=True)
+    price = forms.DecimalField(max_digits=5)
+
+    class Meta:
+        model = ModelForm
+        fields = ('nanme', 'address', 'comments', 'delivery_method', 'phone_number', 'price', 'tip')
+
+    def clean(self, value):
+        try:
+            return CheckoutForm.objects.get(pk=value)
+        except:
+            raise ValidationError
+
+    def getName(self):
+        return self.name
+
+    # TODO update valid form
+    def is_valid(self):
+        return True
 
 
 

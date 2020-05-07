@@ -4,8 +4,107 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  <div style="text-align:center">Hi {{ user.username }}! Confirm Order and Checkout</div>
-  <p><a href="{% url 'logout' %}">logout</a></p>
+    <div style="text-align:center">Hi {{ user.username }}! Confirm Order and Checkout</div>
+
+  <div class = align-right>
+  <br>
+      <hr>
+   <form method="post">
+    {% csrf_token %}
+
+  <td colspan= 3> Cart: </td><br><br>
+      {% for item in order %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ item.name }}</td>
+          <td>${{ item.price }}</td>
+            <span class="pull-right">
+                <a href="{% url 'delete_from_cart' item.item_id %}" class="btn btn-warning">Delete from Cart</a>
+            </span>
+        <br>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan= 3> You have not added any items yet.</td>
+        </tr>
+      {% endfor %}
+  {%  if order %}
+      <p>Sales Tax: 6.25%</p>
+      <p>Total Price: ${{ total }}</p>
+      {% endif %}
+  <br>
+  <hr>
+      <p>Name:<br>{{ form.name }}</p>
+      <p>Address:<br>{{  form.address }}</p>
+      <p>Comments:<br> {{ form.comments }}</p>
+      <p>Phone Number:<br> {{ form.phone_number }}</p>
+      <p>Delivery Method:<br>
+          <select name="delivery_method" onchange="checkDelivery(this.value);">
+              {%  for delivery in form.delivery_method %}
+                  {{ delivery }}
+              {% endfor %}
+          </select>
+      </p>
+
+      <p>Tip:<br>
+          <select name="tip" onchange="CheckTip(this.value);" id="tips">
+              {%  for tip in form.tip %}
+                  {{ tip }}
+              {% endfor %}
+          </select>
+          <input type="text" name="tipBox" id="tipBox" style='display:none;'/>
+      </p>
+         <label for="totalPrice">Total Price: $</label><input name="totalPrice" id="totalPrice" type="text" readonly></input>
+        <p>Please select your Payment Method:</p>
+  <input type="radio" id="cash" name="type" value="cash">
+  <label for="cash">Cash</label><br>
+  <input type="radio" id="card" name="type" value="card">
+  <label for="card">Card</label><br>
+      </p>
+    <button type="submit" id="checkout" name="checkout" disabled>Submit Order</button>
+    </form>
+      </div>
+  </div>
+
+    <script type="text/javascript">
+        function CheckTip(val){
+            var element=document.getElementById('tipBox');
+            if(val=='4')
+                element.style.display='block';
+            else
+                element.style.display='none';
+            }
+    </script>
+    <script type="text/javascript">
+        function checkDelivery(val){
+            console.log(document.getElementById("tips").select)
+            if (val=='2') {
+                alert("This option will incur a $5.00 delivery fee and is separate from the delivery tip.")
+                var newTotal = {{ total }}+5;
+                updateTotal(newTotal)
+            }
+            if (val=='3') {
+                var newTotal = {{ total }}+15;
+                updateTotal(newTotal)
+                alert("This option will incur a $15.00 delivery fee and is separate from the delivery tip.")
+            }
+        }
+        function updateTotal(val) {
+            document.getElementById('totalPrice').value = val;
+        }
+    </script>
+    <script>
+    window.onload = function(){
+        var total = {{ total }}
+        document.getElementById('totalPrice').value = total
+        console.log(total)
+        if (total > 0){
+            document.getElementById("checkout").disabled=false;
+        }
+
+};
+</script>
+    <p><a href="{% url 'logout' %}">logout</a></p>
 {% else %}
   <p>You are not logged in</p>
   <a href="{% url 'login' %}">login</a>

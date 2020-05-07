@@ -4,8 +4,21 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  <div style="text-align:center">Hi {{ user.username }}! Welocme to Willy's Pizza Online Driver Portal</div>
-  <p><a href="{% url 'logout' %}">logout</a></p>
+  <div style="text-align:center">Hi {{ user.username }}! Welcome to Willy's Pizza Online Driver Portal</div>
+    <div class="row">
+  {% for order in orders %}
+        <div class="col-sm-3">
+            <p>{{ order.items }}</p>
+            <p>{{ order.comments }}</p>
+            <p>{{ order.email }}</p>
+            <p>Order Status: {{ order.status }}</p>
+            <a href="{% url 'updateDriverOrders' order.id %}" class="btn btn-warning">Update Order</a>
+        </div>
+    {% endfor %}
+  </div>
+  <br>
+  <hr>
+  <p><a href="{% url 'logout' %}">Logout</a></p>
 {% else %}
   <p>You are not logged in</p>
   <a href="{% url 'login' %}">login</a>
