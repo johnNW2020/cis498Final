@@ -129,7 +129,7 @@ def updateDriverOrders(request, **kwargs):
     orders.updateOrder(order)
     return redirect('driverhome')
 
-
+# This is a sign up Method 
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
