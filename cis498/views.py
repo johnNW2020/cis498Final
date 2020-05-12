@@ -74,7 +74,7 @@ def ordertracker(request):
     return render(request, 'ordertracker.html', context)
 
 
-@login_required()
+@staff_member_required()
 def driverhome(request):
     order = Orders()
     orders = order.get_driver_orders(request.user.username)
